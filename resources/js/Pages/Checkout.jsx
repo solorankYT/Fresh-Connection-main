@@ -274,7 +274,7 @@ export default function Checkout() {
     const onSubmit = (data) => {
         const submissionData = {
             ...data,
-            paid: data.payment_method === "cod" ? "unpaid" : "paid", // COD orders are unpaid until delivery
+            paid: data.payment_method === "cod" ? 2 : 1,
             total_amount: calculateTotal(), // Include the discounted total
             subtotal: subtotal, // Include original subtotal
             promotion_id: activePromo ? activePromo.id : null, // Include promotion ID if one is applied

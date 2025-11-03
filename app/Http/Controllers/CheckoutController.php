@@ -188,7 +188,8 @@ class CheckoutController extends Controller
     $finalTotal = $subtotal - $discountAmount + $deliveryFee;
 
     // Payment status based on payment method
-    $paymentStatus = $request->payment_method === 'cod' ? 'paid' : 'unpaid';
+    $paymentStatus = $request->payment_method === 'cod' ? 2 : 1;
+
 
     // Create the order with the correct payment status and voucher details
     $order = Order::create([
