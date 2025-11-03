@@ -47,7 +47,7 @@ class Order extends Model
         'discount',
     ];
 
-    /**
+    /**ss
      * Get the order items for this order.
      */
     public function items(): HasMany
