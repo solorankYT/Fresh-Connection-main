@@ -25,9 +25,12 @@ export default function Products() {
     ];
 
     // Dynamically filter products based on search query
-    const filteredProducts = products.data.filter((product) =>
+    const filteredProducts = products.data
+    .filter((product) => product.status === "active")
+    .filter((product) =>
         product.product_name.toLowerCase().includes(searchQuery.toLowerCase())
     );
+
 
     // Handle category change
     const handleCategoryChange = (e) => {

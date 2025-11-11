@@ -25,6 +25,7 @@ class Product extends Model
         'vat',
         'tax_percentage',
         'tax',
+        'tax_exemption',
         'other_tax',
         'final_price',
         'category',

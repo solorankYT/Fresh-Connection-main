@@ -234,8 +234,10 @@
                 <tr>
                     <td>
                         <strong>{{ $item->product->name }}</strong><br>
-                        <small style="color: #666;">SKU: {{ $item->product->id }}</small>
+                        <small style="color: #666;">SKU: {{ $item->product->product_id }}</small>
                     </td>
+                    <td style="text-align: center;">{{ $item->product->product_name }}</td>
+                    <td style="text-align: center;">{{ $item->quantity }}</td>
                     <td style="text-align: center;">{{ $item->quantity }}</td>
                     <td style="text-align: right;">₱{{ number_format($item->price, 2) }}</td>
                     <td style="text-align: right;">₱{{ number_format($item->total, 2) }}</td>

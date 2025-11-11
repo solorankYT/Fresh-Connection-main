@@ -212,8 +212,8 @@ class ManageProductsController extends Controller
 
     public function destroy(Request $request, Product $product)
     {
-        $productId = $request->input('id') ?? $product->id; // Retrieve id from request if not in route
-        Log::info('Product ID:', ['id' => $productId]);
+        $productId = $request->input('product_id') ?? $product->product_id; // Retrieve id from request if not in route
+        Log::info('Product ID:', ['product_id' => $productId]);
 
         $product = Product::find($productId);
         if ($product) {

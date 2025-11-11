@@ -301,11 +301,14 @@ export default function OrderDetails({ order, orders, onClose, onNextOrder, orde
                                             <SelectValue placeholder="Select new status" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {orderStatus.map((status) => (
-                                                <SelectItem key={status.id} value={status.status}>
-                                                    {status.status}
-                                                </SelectItem>
-                                            ))}
+                                             <SelectContent>
+                                                    <SelectItem value="placed">Placed</SelectItem>
+                                                    <SelectItem value="shipped">Shipped</SelectItem>
+                                                    <SelectItem value="delivered">Delivered</SelectItem>
+                                                    <SelectItem value="completed">Completed</SelectItem>
+                                                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                                                    <SelectItem value="returned">Returned</SelectItem>
+                                                </SelectContent>
                                         </SelectContent>
                                     </Select>
                                 </div>
