@@ -43,6 +43,10 @@ import {
     PaginationPrevious, 
     PaginationEllipsis 
 } from "@/components/ui/pagination";
+import { AnimatePresence } from "framer-motion";
+import AddUser from "../../Components/AddUser";
+import { motion } from "framer-motion";
+
 
 export default function UserManagement({ users: initialUsers, summary: overallSummary, chartData, barChartData, filters }) {
     const [users, setUsers] = useState(initialUsers);
@@ -53,6 +57,10 @@ export default function UserManagement({ users: initialUsers, summary: overallSu
         key: filters?.sort_key || "id",
         direction: filters?.sort_direction || "asc",
     });
+    const [isAddingUser, setIsAddingUser] = useState(false);
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [editedUsers, setEditedUsers] = useState({});
+
 
     const summary = overallSummary;
 
@@ -158,8 +166,6 @@ export default function UserManagement({ users: initialUsers, summary: overallSu
         return `${monthNames[sixMonthsAgo.getMonth()]} to ${monthNames[now.getMonth()]}`;
     };
 
-    const [isEditMode, setIsEditMode] = useState(false);
-    const [editedUsers, setEditedUsers] = useState({});
 
     const handleEditModeToggle = () => {
         if (isEditMode) {
@@ -222,133 +228,7 @@ export default function UserManagement({ users: initialUsers, summary: overallSu
                     </BreadcrumbList>
                 </Breadcrumb>
 
-                <header className="flex gap-x-4 mb-4">
-                    <Card className="w-2/5">
-                        <CardHeader>
-                            <CardTitle>New Users</CardTitle>
-                            <CardDescription>{getCurrentMonthRange()}</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <ChartContainer
-                                className="px-4 py-2"
-                                config={chartConfig}
-                                style={{ width: '100%', aspectRatio: '20/9' }}
-                            >
-                                <LineChart
-                                    accessibilityLayer
-                                    data={chartData}
-                                    margin={{
-                                        left: 12,
-                                        right: 12,
-                                    }}
-                                >
-                                    <CartesianGrid vertical={false} />
-                                    <XAxis
-                                        dataKey="month"
-                                        tickLine={false}
-                                        axisLine={false}
-                                        tickMargin={8}
-                                        tickFormatter={(value) => value.slice(0, 3)}
-                                    />
-                                    <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-                                    <Line dataKey="desktop" type="linear" stroke="var(--color-desktop)" strokeWidth={2} dot={false} />
-                                </LineChart>
-                            </ChartContainer>
-                        </CardContent>
-                        <CardFooter className="flex-col items-start gap-2 text-sm">
-                            <div className="flex gap-2 font-medium leading-none">
-                                Showing user registrations over time
-                            </div>
-                            <div className="leading-none text-muted-foreground">Showing trend of new users for the last 6 months</div>
-                        </CardFooter>
-                    </Card>
-                    <Card className="w-2/5">
-                        <CardHeader>
-                            <CardTitle>Top 7 Cities</CardTitle>
-                            <CardDescription>User distribution by location</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <ChartContainer
-                                className="pl-4 py-2"
-                                config={chartConfig}
-                                style={{ width: '100%', aspectRatio: '20/9' }}
-                            >
-                                <BarChart
-                                    accessibilityLayer
-                                    data={barChartData}
-                                    layout="vertical"
-                                    margin={{
-                                        left: 30,
-                                    }}
-                                >
-                                    <XAxis type="number" dataKey="desktop" hide />
-                                    <YAxis
-                                        dataKey="month"
-                                        type="category"
-                                        tickLine={false}
-                                        tickMargin={10}
-                                        axisLine={false}
-                                        width={70}
-                                    />
-                                    <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-                                    <Bar dataKey="desktop" fill="var(--color-desktop)" radius={5} />
-                                </BarChart>
-                            </ChartContainer>
-                        </CardContent>
-                        <CardFooter className="flex-col items-start gap-2 text-sm">
-                            <div className="flex gap-2 font-medium leading-none">
-                                User distribution by city
-                            </div>
-                            <div className="leading-none text-muted-foreground">Showing the top 7 cities with most users</div>
-                        </CardFooter>
-                    </Card>
-                    <div className="w-1/5 flex flex-col gap-y-4">
-                        <Card className="h-1/3">
-                            <CardContent className="flex items-center h-full">
-                                <div className="flex-grow">
-                                    <h3 className="text-sm font-medium text-gray-500 mb-1">Total Users</h3>
-                                    <div className="flex items-baseline">
-                                        <span className="text-3xl font-semibold text-gray-900">{summary.totalUsers}</span>
-                                        <span className="ml-1 text-sm text-gray-500">users</span>
-                                    </div>
-                                    <p className="text-xs text-green-900 mt-2 flex items-center">
-                                        <span>+{chartData?.length > 0 ? chartData[chartData.length - 1]?.desktop || 0 : 0} from this month</span>
-                                    </p>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        <Card className="h-1/3">
-                            <CardContent className="flex items-center h-full">
-                                <div className="flex-grow">
-                                    <h3 className="text-sm font-medium text-gray-500 mb-1">Active Users</h3>
-                                    <div className="flex items-baseline">
-                                        <span className="text-3xl font-semibold text-gray-900">{summary.activeUsers || 0}</span>
-                                        <span className="ml-1 text-sm text-gray-500">users</span>
-                                    </div>
-                                    <p className="text-xs text-green-900 mt-2 flex items-center">
-                                        <span>{Math.round((summary.activeUsers / summary.totalUsers) * 100)}% of total</span>
-                                    </p>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        <Card className="h-1/3">
-                            <CardContent className="flex items-center h-full">
-                                <div className="flex-grow">
-                                    <h3 className="text-sm font-medium text-gray-500 mb-1">Inactive Users</h3>
-                                    <div className="flex items-baseline">
-                                        <span className="text-3xl font-semibold text-gray-900">{summary.inactiveUsers || 0}</span>
-                                        <span className="ml-1 text-sm text-gray-500">users</span>
-                                    </div>
-                                    <p className="text-xs text-red-600 mt-2 flex items-center">
-                                        <span>{Math.round((summary.inactiveUsers / summary.totalUsers) * 100)}% of total</span>
-                                    </p>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
-                </header>
+               
 
                 <Card className="p-4 mb-4">
                     <div className="flex flex-row gap-x-2">
@@ -369,12 +249,22 @@ export default function UserManagement({ users: initialUsers, summary: overallSu
                             </div>
                         </div>
                         <Button
+                        onClick={() => setIsAddingUser(true)}
+                        className=""
+                        >
+                           + Add User
+                        </Button>
+
+                        <Button
                             onClick={handleEditModeToggle}
                             className=""
                             variant="outline"
                         >
                             {isEditMode ? "Save" : <PencilSquareIcon className="w-6 h-6" />}
                         </Button>
+                        
+                                    
+
                     </div>
 
                     <Table>
@@ -570,6 +460,32 @@ export default function UserManagement({ users: initialUsers, summary: overallSu
                         </Pagination>
                     )}
                 </Card>
+
+                
+            <AnimatePresence>
+                {isAddingUser && (
+                    <div className="fixed inset-0 flex justify-end z-50">
+                        <motion.div
+                            initial={{ x: "100%" }}
+                            animate={{ x: 0 }}
+                            exit={{ x: "100%" }}
+                            transition={{ duration: 0.3, ease: "easeInOut" }}
+                            className="relative z-10 m-4"
+                        >
+                            <AddUser onClose={() => setIsAddingUser(false)} />
+                        </motion.div>
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 0.4 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.3, ease: "easeInOut" }}
+                            className="absolute inset-0 bg-black"
+                            onClick={() => setIsAddingUser(false)}
+                        />
+                    </div>
+                )}
+            </AnimatePresence>
+
             </ErrorBoundary>
         </AppLayout>
     );

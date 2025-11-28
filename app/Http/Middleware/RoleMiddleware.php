@@ -4,22 +4,17 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class RoleMiddleware
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @param  string|null  $role
-     * @return mixed
-     */
-    public function handle(Request $request, Closure $next, string $role = null)
+    public function handle(Request $request, Closure $next, ...$roles): mixed
     {
-        if (!Auth::check() || ($role && Auth::user()->role !== $role)) {
-            abort(403, 'Unauthorized');
+        if (! $request->user()) {
+            abort(403, 'Unauthorized.');
+        }
+
+        if (! in_array($request->user()->role, $roles)) {
+            abort(403, 'Unauthorized.');
         }
 
         return $next($request);

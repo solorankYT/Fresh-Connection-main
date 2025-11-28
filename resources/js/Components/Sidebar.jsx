@@ -15,6 +15,8 @@ import { Link, usePage } from '@inertiajs/react';
 const Sidebar = () => {
   const { auth } = usePage().props;
   const [collapsed, setCollapsed] = useState(false);
+  const isAdmin = auth?.user?.role === 'admin';
+  const isSupplier = auth?.user?.role === 'supplier';
 
   const navItems = [
     { href: '/',       icon: HomeIcon,            label: 'Home' },
@@ -23,6 +25,10 @@ const Sidebar = () => {
     { href: '/admin/manage-orders',      icon: ShoppingCartIcon,    label: 'Orders' },
     { href: '/admin/user-management',    icon: UsersIcon,           label: 'User Management' },
     { href: '/admin/promotions',         icon: TagIcon,             label: 'Promotions' },
+  ];
+
+  const supplierNavItems = [
+  { href: '/admin/manage-products',    icon: CubeIcon,            label: 'Manage products' },
   ];
 
   return (
@@ -49,7 +55,23 @@ const Sidebar = () => {
 
       {/* Navigation Links */}
       <ul className="flex-grow space-y-2 px-2 py-4">
-        {navItems.map(({ href, icon: Icon, label }) => (
+        {isAdmin && navItems.map(({ href, icon: Icon, label }) => (
+          <Link
+            key={href}
+            href={href}
+            className={`
+              flex items-center transition-all duration-150
+              hover:scale-110 hover:bg-green-900 hover:text-white
+              cursor-pointer rounded-sm
+              space-x-2 px-4 py-2
+            `}
+          >
+            <Icon className="w-6 h-6" />
+            {!collapsed && <span>{label}</span>}
+          </Link>
+        ))}
+
+        {isSupplier && supplierNavItems.map(({ href, icon: Icon, label }) => (
           <Link
             key={href}
             href={href}

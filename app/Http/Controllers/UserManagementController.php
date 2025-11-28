@@ -211,7 +211,18 @@ class UserManagementController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validatedData = $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'phone_number' => 'nullable|string|max:20',
+            'password' => 'required|string|min:8|confirmed',
+            'role' => 'required|string|in:admin,supplier,customer',
+            'status' => 'required|string|in:active,inactive',
+        ]);
+
+        User::create($validatedData);
+
     }
 
     /**

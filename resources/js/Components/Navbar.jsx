@@ -6,6 +6,8 @@ export default function Navbar() {
     const [menuOpen, setMenuOpen] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
+    const isUser = auth?.user?.role !== 'supplier' && auth?.user?.role !== 'admin';
+    
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -30,6 +32,7 @@ export default function Navbar() {
                     </div>
 
                     {/* Desktop Navigation */}
+                    {isUser && (
                     <div className="hidden md:flex space-x-6">
                         <Link
                             href="/"
@@ -56,6 +59,7 @@ export default function Navbar() {
                             Contact
                         </Link>
                     </div>
+                    )}
 
                     {/* Right Section - Account Dropdown & Cart */}
                     <div className="hidden md:flex space-x-4 items-center">
@@ -98,7 +102,7 @@ export default function Navbar() {
             </div>
 
             {/* Mobile Menu */}
-            {menuOpen && (
+            {menuOpen && isUser &&(
                 <div className="md:hidden bg-white shadow-md p-4">
                     <Link href="/" className="block py-2 text-gray-700 hover:text-green-900 transition-all">
                         Home

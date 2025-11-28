@@ -139,17 +139,19 @@ Route::middleware(['auth', EnsureCartIsNotEmpty::class])->group(function () {
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
 });
 
-
-
-// Admin Routes 
-Route::middleware(['auth', 'role:admin'])->group(function () {
-
-    Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+//Supplier & Admin Routes
+Route::middleware(['auth', 'role:admin,supplier'])->group(function () {
     Route::get('/admin/manage-products', [ManageProductsController::class, 'index'])->name('admin.manage-products');
     Route::put('/admin/manage-products/bulk-update', [ManageProductsController::class, 'bulkUpdate'])->name('admin.manage-products.bulk-update');
     Route::put('/admin/manage-products/{product_id}', [ManageProductsController::class, 'update'])->name('manage-products.update');
     Route::delete('/admin/manage-products/{product_id}', [ManageProductsController::class, 'destroy'])->name('manage-products.delete');
     Route::post('/admin/manage-products', [ManageProductsController::class, 'store']);
+});
+
+
+// Admin Routes 
+Route::middleware(['auth', 'role:admin' ])->group(function () {
+    Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 
     Route::get('/admin/manage-orders', [ManageOrderController::class, 'index'])->name('admin.manage-orders');
     Route::post('/admin/manage-orders/bulk-update', [ManageOrderController::class, 'bulkUpdate'])->name('manage-orders.bulk-update');
@@ -159,6 +161,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::get('/admin/user-management', [UserManagementController::class, 'index'])->name('admin.user-management');
     Route::put('/admin/user-management/bulk-update', [UserManagementController::class, 'bulkUpdate'])->name('admin.user-management.bulk-update');
+    Route::post('/admin/user-management', [UserManagementController::class, 'store'])->name('admin.user-management.store');
+    Route::delete('/admin/user-management/{id}', [UserManagementController::class, 'destroy'])->name('admin.user-management.destroy');
 
     // Promotion Management Routes
     Route::get('/admin/promotions', [PromotionController::class, 'index'])->name('admin.promotions');
