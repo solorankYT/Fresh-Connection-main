@@ -1,6 +1,6 @@
 import { Link, router } from "@inertiajs/react";
 import AppLayout from "../../Layouts/AppLayout";
-import { Search, CalendarIcon, PackageIcon } from "lucide-react";
+import { Search, CalendarIcon, PackageIcon, FilterIcon } from "lucide-react";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import OrderDetails from "@/resources/js/Components/OrderDetails"; // Import the OrderDetails component
 import { motion, AnimatePresence } from "framer-motion"; // Import Framer Motion
@@ -232,7 +232,7 @@ export default function ManageOrders({ orders, orderStatus, chartData, paymentCh
                 </BreadcrumbList>
             </Breadcrumb>
 
-            {/* <summary className="px-4 py-2 mt-4 sticky top-16 border-b bg-gray-50 z-10">
+            <summary className="px-4 py-2 mt-4 sticky top-16 border-b bg-gray-50 z-10">
                 <div className=" flex items-center gap-4">
                     <div className="flex-grow">
                         <h3 className="text-xl font-bold">Order List</h3>
@@ -240,18 +240,7 @@ export default function ManageOrders({ orders, orderStatus, chartData, paymentCh
                             Here you can find all orders
                         </p>
                     </div>
-                    <Button
-
-                        className="px-4 py-2 bg-green-900 rounded-sm min-w-32 text-white text-center"
-                    >
-                        Add Order
-                    </Button>
-                    <Button
-                        onClick={handleEditModeToggle}
-                        className="px-4 py-2 border border-green-900 bg-white text-black cursor-pointer rounded-sm min-w-32 text-center hover:text-white hover:bg-gray-800 transition-all"
-                    >
-                        {isEditMode ? "Save" : "Manage"}
-                    </Button>
+                   
                 </div>
                 <div className="mt-4 py-4 flex gap-x-4">
                     <div className="flex-auto border rounded-sm px-4 py-2 bg-gray-50 border-gray-300 shadow-sm">
@@ -298,7 +287,7 @@ export default function ManageOrders({ orders, orderStatus, chartData, paymentCh
                         </p>
                     </div>
                 </div>
-            </summary> */}
+            </summary>
 
             {/* order list section */}
             <Card className="p-4 mb-4">
@@ -320,8 +309,16 @@ export default function ManageOrders({ orders, orderStatus, chartData, paymentCh
                             ) : (
                                 <Search className="text-gray-500 absolute right-3" size={18} />
                             )}
-                        </div>
+                        </div>                  
                     </div>
+    
+                       <Button 
+                        variant="outline"
+                
+                        >
+                        <FilterIcon/>
+                        </Button>
+                   
                     <Button
                         onClick={handleEditModeToggle}
                         className=""
@@ -329,6 +326,8 @@ export default function ManageOrders({ orders, orderStatus, chartData, paymentCh
                     >
                         {isEditMode ? "Save" : <PencilSquareIcon className="w-6 h-6" />}
                     </Button>
+
+                    
                 </div>
 
                 <Table>
@@ -352,12 +351,6 @@ export default function ManageOrders({ orders, orderStatus, chartData, paymentCh
                                 onClick={() => handleSort("total")}
                             >
                                 Amount
-                            </TableHead>
-                            <TableHead
-                                className="cursor-pointer hover:bg-gray-50"
-                                onClick={() => handleSort("supplier")}
-                            >
-                                Supplier
                             </TableHead>
                             <TableHead
                                 className="cursor-pointer hover:bg-gray-50"
@@ -410,10 +403,6 @@ export default function ManageOrders({ orders, orderStatus, chartData, paymentCh
                                         <p className="text-xs text-gray-500">{order.payment_method}</p>
                                     </TableCell>
 
-                                    {/* Supplier */}
-                                    <TableCell className="">
-                                        <p className="text-gray-800">Fresh Supermarket</p>
-                                    </TableCell>
 
                                     {/* Order Status */}
                                     <TableCell className="">
