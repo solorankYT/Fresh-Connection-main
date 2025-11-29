@@ -31,7 +31,6 @@ export default function Products() {
         product.product_name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-
     // Handle category change
     const handleCategoryChange = (e) => {
         router.get(window.location.pathname, {

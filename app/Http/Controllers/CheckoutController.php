@@ -158,8 +158,22 @@ class CheckoutController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate($this->validationRules());    // Get cart items
-    $cartItems = Cart::with('product')
+        $validated = $request->validate($this->validationRules());
+        
+       // Update user profile with checkout info
+        $user = Auth::user();
+        $user->first_name = $validated['first_name'];
+        $user->last_name = $validated['last_name'];
+        $user->street_address = $validated['address'];
+        $user->barangay = $validated['barangay'];
+        $user->city = $validated['city'];
+        $user->state = $validated['region'];
+        $user->postal_code = $validated['zip_code'];
+        $user->phone_number = $validated['mobile_number'];
+        $user->save();
+
+        // Get cart items
+        $cartItems = Cart::with('product')
         ->where('user_id', Auth::id())
         ->get();
 
@@ -202,6 +216,8 @@ class CheckoutController extends Controller
         'paid' => $paymentStatus,
         ...$validated,
     ]);
+
+
 
     // Create order tracking entry
     $tracking = OrderTracking::create([
