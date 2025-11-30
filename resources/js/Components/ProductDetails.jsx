@@ -437,7 +437,7 @@ export default function ProductDetails({ product, onUpdate, onClose }) {
                         <hr className="border-gray-300"></hr>
                         <div className="flex flex-col gap-y-2 py-2">
                             <p className="text-sm font-light">
-                                Base Price:{" "}
+                                Cost Price:{" "}
                                 <Input
                                     type="number"
                                     name="product_price"
