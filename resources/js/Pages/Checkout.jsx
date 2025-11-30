@@ -272,9 +272,13 @@ export default function Checkout() {
     const selectedPayment = watch("payment_method");    
 
     const onSubmit = (data) => {
+         let payment_status = 'pending';
+            if (data.payment_method === 'cod') {
+            payment_status = 'approved';
+    }
         const submissionData = {
             ...data,
-            paid: data.payment_method === "cod" ? 2 : 1,
+            payment_status: payment_status,
             total_amount: calculateTotal(), // Include the discounted total
             subtotal: subtotal, // Include original subtotal
             promotion_id: activePromo ? activePromo.id : null, // Include promotion ID if one is applied
@@ -292,7 +296,7 @@ export default function Checkout() {
                     type="radio"
                     value={value}
                     {...register("payment_method")}
-                    className="mr-2"
+                    className="mr-2 form-radio h-4 w-4 text-green-900"
                 />
                 {label}
             </label>

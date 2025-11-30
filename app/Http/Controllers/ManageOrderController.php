@@ -285,16 +285,16 @@ class ManageOrderController extends Controller
             return redirect()->back()->with('error', 'Order not found.');
         }
 
-        if ($order->paid === 'paid') {
+        if ($order->payment_status === 'approved') {
             return redirect()->back()->with('message', 'Order is already paid.');
         }
 
-        $order->update(['paid' => 'paid']);
+        $order->update(['payment_status' => 'approved']);
 
         $order->orderTracking()->create([
             'primary_status' => 'confirmed',
             'secondary_status' => '',
-            'comments' => 'Order has been confirmed.',
+            'comments' => 'Payment has been confirmed.',
         ]);
 
         try {
@@ -309,5 +309,28 @@ class ManageOrderController extends Controller
         }
 
         return redirect()->back()->with('message', 'Order confirmed successfully and invoice has been generated!');
+    }
+
+    public function rejectOrder(Request $request, $orderId)
+    {
+        $order = Order::find($orderId);
+
+        if (!$order) {
+            return redirect()->back()->with('error', 'Order not found.');
+        }
+
+        if ($order->payment_status === 'rejected') {
+            return redirect()->back()->with('message', 'Order payment has already been rejected.');
+        }
+
+        $order->update(['payment_status' => 'rejected']);
+
+        $order->orderTracking()->create([
+            'primary_status' => 'rejected',
+            'secondary_status' => '',
+            'comments' => 'Order payment has been rejected.',
+        ]);
+
+        return redirect()->back()->with('message', 'Order payment rejected successfully.');
     }
 }

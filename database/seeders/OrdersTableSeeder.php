@@ -93,7 +93,7 @@ class OrdersTableSeeder extends Seeder
             $order->total = 0;
             $order->status = 'completed';
             $order->payment_method = $paymentMethod;
-            $order->paid = true;
+            $order->payment_status = $paymentMethod === 'cod' ? 'approved' : 'pending';
             
             // Conditional fields based on payment method
             if ($paymentMethod === 'credit_card') {

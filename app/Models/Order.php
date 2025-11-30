@@ -36,7 +36,7 @@ class Order extends Model
         'status',
         'payment_method',
         'invoice_path',
-        'paid',
+        'payment_status',
         'card_number_last4',
         'gcash_or_maya_account',
         'shipped_at',

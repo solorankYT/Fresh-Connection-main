@@ -59,12 +59,26 @@ export default function OrderDetails({ order, orders, onClose, onNextOrder, orde
             router.post(`/order/${orderId}/confirm`, {
                 onSuccess: () => {
                     toast.success("Order confirmed and marked as paid!");
-                    setCurrentOrder({ ...currentOrder, paid: 'paid' }); // Update the local state
+                    setCurrentOrder({ ...currentOrder, payment_status: 'approved' }); // Update the local state
                 },
                 onError: (error) => {
                     toast.error("Failed to confirm order.");
                     console.error(error);
                 },
+            });
+        };
+
+        const handleRejectOrder = (orderId) => {
+            router.post(`/order/${orderId}/reject`, {
+                onSuccess: () => {
+                    toast.success("Order payment rejected.");
+                    setCurrentOrder({ ...currentOrder, payment_status: 'rejected' }); // Update the local state
+                }
+                ,
+                onError: (error) => {
+                    toast.error("Failed to reject order.");
+                    console.error(error);
+                }
             });
         };
 
@@ -733,7 +747,7 @@ export default function OrderDetails({ order, orders, onClose, onNextOrder, orde
                             <div>
                                 <h3 className="text-lg font-semibold">Order Confirmation</h3>
 
-                                {currentOrder.paid === "payment_review" && currentOrder.payment_proof && (
+                                {currentOrder.payment_status === "payment_review" && currentOrder.payment_proof && (
                                     <div className="mt-4">
                                         <h4 className="text-md font-semibold">Payment Proof</h4>
                                         <p className="text-sm text-gray-500">
@@ -746,10 +760,28 @@ export default function OrderDetails({ order, orders, onClose, onNextOrder, orde
                                             className="mt-2 w-64 h-64 object-cover rounded-lg cursor-pointer"
                                             onClick={() => openImage(`/storage/${currentOrder.payment_proof}`)} 
                                         />
+                                        <div className="mt-4">
+                                        <Button
+                                            variant="default"
+                                            className="bg-green-900 text-white px-4 py-2 rounded-md shadow hover:bg-green-800 transition-colors"
+                                            onClick={() => handleConfirmOrder(currentOrder.id)} 
+                                        >
+                                            Confirm Order
+                                        </Button>
+
+                                        <Button
+                                            variant="secondary"
+                                            className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-200 transition-colors ml-2"
+                                            onClick={() => { handleRejectOrder(currentOrder.id); }}
+                                        >
+                                            Reject Order
+                                        </Button>
                                     </div>
+                                    </div>
+                                    
                                 )}
 
-                                {currentOrder.paid === "paid" && (
+                                {currentOrder.payment_status === "approved" && (
                                     <div className="mt-4">
                                           <img
                                             src={`/storage/${currentOrder.payment_proof}`}
@@ -764,34 +796,13 @@ export default function OrderDetails({ order, orders, onClose, onNextOrder, orde
                                     </div>
                                 )}
 
-                                {currentOrder.paid === "Unpaid" && (
+                                {currentOrder.payment_status === "pending" && (
                                     <div className="mt-4">
                                        <h1>User dosen't have a proof of payment yet</h1>
                                     </div>
                                 )}
 
-                                {currentOrder.paid === "payment_review" && (
-                                    <div className="mt-4">
-                                        <Button
-                                            variant="default"
-                                            className="bg-green-900 text-white px-4 py-2 rounded-md shadow hover:bg-green-800 transition-colors"
-                                            onClick={() => handleConfirmOrder(currentOrder.id)} 
-                                        >
-                                            Confirm Order
-                                        </Button>
 
-                                        <Button
-                                            variant="secondary"
-                                            className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-200 transition-colors ml-2"
-                                            onClick={() => {
-                                                toast.error("Order confirmation rejected.");
-                                                setActiveTab(null);
-                                            }}
-                                        >
-                                            Reject Order
-                                        </Button>
-                                    </div>
-                                )}
 
                                 {imageOpen && (
                                     <div

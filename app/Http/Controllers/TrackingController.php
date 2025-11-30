@@ -43,41 +43,39 @@ class TrackingController extends Controller
         ]);
     }
 
-    public function uploadPaymentProof(Request $request, $orderId)
-    {
-        $order = Order::where('user_id', Auth::id())->find($orderId);
+public function uploadPaymentProof(Request $request, $orderId)
+{
+    $order = Order::where('user_id', Auth::id())->find($orderId);
 
-        if (!$order) {
-            return back()->with('error', 'Order not found.');
-        }
-
-        if ($order->paid !== 'unpaid') {
-            return back()->with('error', 'This order has already been paid or does not require payment proof.');
-        }
-
-        $validated = $request->validate([
-            'payment_proof' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        ]);
-
-        $filePath = $request->file('payment_proof')->store('payment_proofs', 'public');
-
-        $order->update([
-            'paid' => 'payment_review', 
-            'payment_proof' => $filePath, 
-        ]);
-
-        OrderTracking::create([
-            'order_id' => $order->id,
-            'primary_status' => 'payment_review',
-            'secondary_status' => '',
-            'comments' => 'Payment proof uploaded, awaiting verification.',
-            'updated_by' => Auth::id(),
-        ]);
-
-        return back()->with('success', 'Payment proof uploaded successfully. Your order is under review.');
+    if (!$order) {
+        return back()->with('error', 'Order not found.');
     }
 
+    // Allow if status is pending or rejected
+    if (!in_array($order->payment_status, ['pending', 'rejected'])) {
+        return back()->with('error', 'This order does not require a payment proof or has already been reviewed.');
+    }
 
+    $validated = $request->validate([
+        'payment_proof' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+    ]);
 
+    $filePath = $request->file('payment_proof')->store('payment_proofs', 'public');
+
+    $order->update([
+        'payment_proof' => $filePath,
+        'payment_status' => 'payment_review', // waiting for admin verification
+    ]);
+
+    OrderTracking::create([
+        'order_id' => $order->id,
+        'primary_status' => 'payment_review',
+        'secondary_status' => '',
+        'comments' => 'Payment proof uploaded, awaiting verification.',
+        'updated_by' => Auth::id(),
+    ]);
+
+    return back()->with('success', 'Payment proof uploaded successfully. Your order is under review.');
+}
 
 }

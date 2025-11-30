@@ -175,7 +175,7 @@ Route::middleware(['auth', 'role:admin' ])->group(function () {
     Route::delete('/admin/vouchers/{voucher}', [VoucherManagementController::class, 'destroy'])->name('admin.vouchers.destroy');
 
     Route::post('/order/{orderId}/confirm', [ManageOrderController::class, 'confirmOrder'])->name('order.confirm');
-
+    Route::post('/order/{orderId}/reject', [ManageOrderController::class, 'rejectOrder'])->name('order.reject');
 });
 
 

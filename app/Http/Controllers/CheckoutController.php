@@ -161,62 +161,81 @@ class CheckoutController extends Controller
         $validated = $request->validate($this->validationRules());
         
        // Update user profile with checkout info
-        $user = Auth::user();
-        $user->first_name = $validated['first_name'];
-        $user->last_name = $validated['last_name'];
-        $user->street_address = $validated['address'];
-        $user->barangay = $validated['barangay'];
-        $user->city = $validated['city'];
-        $user->state = $validated['region'];
-        $user->postal_code = $validated['zip_code'];
-        $user->phone_number = $validated['mobile_number'];
-        $user->save();
+        Auth::user()->update([
+        'first_name'     => $validated['first_name'],
+        'last_name'      => $validated['last_name'],
+        'street_address' => $validated['address'],
+        'barangay'       => $validated['barangay'],
+        'city'           => $validated['city'],
+        'state'          => $validated['region'],
+        'postal_code'    => $validated['zip_code'],
+        'phone_number'   => $validated['mobile_number'],
+    ]);
 
         // Get cart items
         $cartItems = Cart::with('product')
         ->where('user_id', Auth::id())
         ->get();
 
-    // Calculate subtotal before promotion
-    $subtotal = $cartItems->sum(function ($item) {
-        return ($item->quantity * $item->product->final_price) - $item->product->discount;
-    });
+        // Calculate subtotal before promotion
+    $subtotal = Cart::where('user_id', Auth::id())
+        ->with('product')
+        ->get()
+        ->sum(fn($item) => $item->product->price * $item->quantity);
 
-    // Get active promotion from session
-    $promotion = session('active_promotion');
-    $discountAmount = 0;
+        // Get active promotion from session
+        $promotion = session('active_promotion');
+        $discountAmount = 0;
 
-    // Calculate promotion discount if applicable
-    if ($promotion) {
-        if ($promotion->discount_type === 'percentage') {
-            $discountAmount = ($subtotal * $promotion->discount_value / 100);
-        } else {
-            $discountAmount = $promotion->discount_value;
+        // Calculate promotion discount if applicable
+        if ($promotion) {
+        $discountAmount = (($promotion->percentage / 100) * $subtotal);
+
+        // Prevent discount > subtotal
+        if ($discountAmount > $subtotal) {
+            $discountAmount = $subtotal;
         }
     }
 
+
     // Add delivery fee (example $5.00, replace with actual logic)
-    $deliveryFee = 5.00;
+    $deliveryFee = 50;
 
     // Calculate final total with promotion discount
-    $finalTotal = $subtotal - $discountAmount + $deliveryFee;
+    $finalTotal = $subtotal - $discountAmount;
 
-    // Payment status based on payment method
-    $paymentStatus = $request->payment_method === 'cod' ? 2 : 1;
+    $grandTotal = $finalTotal + $deliveryFee;
+
+
+    if ($grandTotal < 0) {
+    $grandTotal = 0;
+}
+
 
 
     // Create the order with the correct payment status and voucher details
     $order = Order::create([
-        'user_id' => Auth::id(),
-        'subtotal' => $subtotal,
-        'discount' => $discountAmount,
-        'promotion_id' => $promotion ? $promotion->id : null,
-        'total' => $finalTotal,
-        'delivery_fee' => $deliveryFee,
-        'paid' => $paymentStatus,
-        ...$validated,
-    ]);
+    'user_id' => Auth::id(),
+    'subtotal' => $subtotal,
+    'discount' => $discountAmount,
+    'promotion_id' => $promotion ? $promotion->id : null,
+    'total' => $grandTotal,
+    'delivery_fee' => $deliveryFee,
+    'payment_status' => $validated['payment_method'] === 'cod' ? 'approved' : 'pending',
+    
+    'first_name' => $validated['first_name'],
+    'last_name' => $validated['last_name'],
+    'address' => $validated['address'],
+    'barangay' => $validated['barangay'],
+    'city' => $validated['city'],
+    'region' => $validated['region'],
+    'zip_code' => $validated['zip_code'],
+    'mobile_number' => $validated['mobile_number'],
 
+    'payment_method' => $validated['payment_method'],
+
+    'card_number' => $validated['card_number'] ?? null,
+]);
 
 
     // Create order tracking entry
@@ -224,7 +243,6 @@ class CheckoutController extends Controller
         'order_id' => $order->id,
         'primary_status' => 'placed',
         'secondary_status' => '',
-        'comments' => $paymentStatus === 'paid' ? 'Order placed successfully. Awaiting delivery.' : 'Order placed successfully. Awaiting GCash payment proof.',
         'updated_by' => Auth::id(),
     ]);
 

@@ -42,7 +42,7 @@ return new class extends Migration {
             ])->default('pending');
 
             $table->string('payment_method')->nullable(); // cash, gcash, card, etc.
-            $table->boolean('paid')->default(false);
+            $table->enum('payment_status', ['pending', 'approved', 'rejected', 'payment_review'])->default('pending');
             $table->string('card_number_last4', 4)->nullable();
             $table->string('gcash_or_maya_account')->nullable();
             $table->string('invoice_path')->nullable();

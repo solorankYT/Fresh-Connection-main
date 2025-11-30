@@ -12,11 +12,13 @@ return new class extends Migration {
 
             // Relationships
             $table->foreignId('order_id')->constrained('orders')->onDelete('cascade');
-
+        
             // Tracking details
+
             $table->string('primary_status')->nullable();
             $table->string('secondary_status')->nullable(); 
             $table->text('comments')->nullable(); 
+
 
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->foreign('updated_by')->references('id')->on('users')->onDelete('set null');

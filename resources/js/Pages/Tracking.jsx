@@ -42,33 +42,37 @@ export default function Tracking({ orderItems, orderDetails, currentOrderId, rev
         setValue("payment_proof", e.target.files[0]);  // Set the file in react-hook-form
     };
 
-    const onSubmit = async (data) => {
-        setIsUploading(true);
+  const onSubmit = (data) => {
+    if (!paymentProof) {
+        toast.error("Please select a file to upload.");
+        return;
+    }
 
-        const formData = new FormData();
-        formData.append("payment_proof", paymentProof);
+    setIsUploading(true);
 
-        try {
-            const response = await fetch(`/order/${currentOrderId}/upload-proof`, {
-                method: "POST",
-                body: formData,
-                headers: {
-                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
-                },
-            });
+    const formData = new FormData();
+    formData.append("payment_proof", paymentProof);
 
-            const result = await response.json();
-            if (result.success) {
-                toast.success(result.message);
-            } else {
-                toast.error(result.message);
-            }
-        } catch (error) {
-            toast.error("Something went wrong while uploading your proof.");
+    router.post(
+        `/order/${currentOrderId}/upload-proof`,
+        formData,
+        {
+            preserveScroll: true,
+            onSuccess: (page) => {
+                toast.success(page.props.flash?.success || "Payment proof uploaded successfully!");
+                setPaymentProof(null); // Clear the file input after success
+            },
+            onError: (errors) => {
+                toast.error(errors.payment_proof || "Failed to upload payment proof.");
+            },
+            onFinish: () => {
+                setIsUploading(false);
+            },
         }
+    );
+};
 
-        setIsUploading(false);
-    };
+
 
     const formatDate = (dateString) => {
         if (!dateString) return '---';
@@ -158,56 +162,67 @@ export default function Tracking({ orderItems, orderDetails, currentOrderId, rev
             </div>
             <hr className="border-gray-300"></hr>
 <div className="p-8">
-    {currentOrder?.paid === 'unpaid' && (
-        <div className="bg-yellow-50 p-6 rounded-lg shadow-md">
-            <h3 className="text-2xl font-semibold text-gray-800 mb-2">Upload Payment Proof</h3>
-            <p className="text-gray-600 text-lg mb-4">Please upload the payment proof for your order to proceed with the verification process.</p>
-            <form onSubmit={formHandleSubmit(onSubmit)} encType="multipart/form-data" className="space-y-4">
-                <div>
-                    <input
-                        type="file"
-                        {...register("payment_proof", { required: "Payment proof is required." })}
-                        onChange={handleFileChange}
-                        className="block w-full text-sm text-gray-800 border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500"
-                    />
-                </div>
+  {(currentOrder?.payment_status === 'pending' || currentOrder?.payment_status === 'rejected') && (
+    <div className="bg-yellow-50 p-6 rounded-lg shadow-md">
+      <h3 className="text-2xl font-semibold text-gray-800 mb-2">Upload Payment Proof</h3>
+      <p className="text-gray-600 text-lg mb-4">
+        Please upload the payment proof for your order to proceed with the verification process.
+      </p>
 
-                <div className="flex justify-between items-center">
-                    {isUploading ? (
-                        <button
-                            type="button"
-                            disabled
-                            className="bg-gray-500 text-white py-2 px-6 rounded-lg w-full flex justify-center items-center space-x-2 cursor-not-allowed"
-                        >
-                            <svg
-                                className="animate-spin w-5 h-5 text-white"
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth="2"
-                                    d="M4 6h16M4 12h16M4 18h16"
-                                />
-                            </svg>
-                            <span>Uploading...</span>
-                        </button>
-                    ) : (
-                        <button
-                            type="submit"
-                            className="bg-blue-600 text-white py-3 px-6 rounded-lg w-full hover:bg-blue-700 transition duration-300"
-                        >
-                            Upload Payment Proof
-                        </button>
-                    )}
-                </div>
-            </form>
+      <form 
+        onSubmit={formHandleSubmit(onSubmit)} 
+        encType="multipart/form-data" 
+        className="space-y-4"
+      >
+        <div>
+          <input
+            type="file"
+            {...register("payment_proof", { required: "Payment proof is required." })}
+            onChange={(e) => {
+              setPaymentProof(e.target.files[0]);
+              setValue("payment_proof", e.target.files[0]); // Update RHF state
+            }}
+            className="block w-full text-sm text-gray-800 border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500"
+          />
         </div>
-    )}
+
+        <div className="flex justify-between items-center">
+          {isUploading ? (
+            <button
+              type="button"
+              disabled
+              className="bg-gray-500 text-white py-2 px-6 rounded-lg w-full flex justify-center items-center space-x-2 cursor-not-allowed"
+            >
+              <svg
+                className="animate-spin w-5 h-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+              <span>Uploading...</span>
+            </button>
+          ) : (
+            <button
+              type="submit"
+              className="bg-blue-600 text-white py-3 px-6 rounded-lg w-full hover:bg-blue-700 transition duration-300"
+            >
+              Upload Payment Proof
+            </button>
+          )}
+        </div>
+      </form>
+    </div>
+  )}
 </div>
+
 
 
 

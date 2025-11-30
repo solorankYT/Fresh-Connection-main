@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class ProductSeeder extends Seeder
 {
@@ -16,7 +17,7 @@ class ProductSeeder extends Seeder
             ['Papaya', 'A tropical fruit with enzymes that aid digestion.', '1kg', 130, 'Fruits'],
             ['Blueberry', 'Tiny, nutrient-packed berries for snacking.', '250g', 220, 'Fruits'],
             ['Watermelon', 'Refreshing and hydrating with a juicy bite.', '1 whole', 160, 'Fruits'],
-            ['Peach', 'A soft, sweet fruit with a fuzzy skin.', '500g', 140, 'Fruits'],
+            ['Peach', 'A soft and sweet fruit with a fuzzy skin.', '500g', 140, 'Fruits'],
             ['Kiwi', 'Tangy and packed with vitamin C.', '500g', 160, 'Fruits'],
             ['Pomegranate', 'A powerhouse of antioxidants with juicy seeds.', '500g', 190, 'Fruits'],
             ['Dragon Fruit', 'Exotic fruit with a mildly sweet taste.', '1 whole', 210, 'Fruits'],
@@ -71,19 +72,19 @@ class ProductSeeder extends Seeder
             ['Protein Shake', 'Nutrient-packed drink for muscle recovery.', '500ml', 150, 'Beverages'],
             ['Iced Tea', 'Refreshing blend of tea and lemon.', '500ml', 95, 'Beverages'],
 
-             // 🌿 Herbs & Spices
-             ['Basil', 'Fragrant herb, great for pasta.', '50g', 40, 'Herbs & Spices'],
-             ['Oregano', 'Used in Italian and Mediterranean dishes.', '50g', 35, 'Herbs & Spices'],
-             ['Cinnamon', 'Sweet and aromatic spice.', '50g', 50, 'Herbs & Spices'],
-             ['Paprika', 'Mildly spicy, adds rich color to food.', '50g', 45, 'Herbs & Spices'],
-             ['Ginger', 'Spicy and medicinal root.', '100g', 60, 'Herbs & Spices'],
-             ['Garlic Powder', 'Used to enhance flavors in cooking.', '50g', 50, 'Herbs & Spices'],
-             ['Rosemary', 'Pine-like flavor, great for meats.', '50g', 40, 'Herbs & Spices'],
-             ['Turmeric', 'Bright yellow, known for anti-inflammatory benefits.', '50g', 55, 'Herbs & Spices'],
-             ['Cumin', 'Earthy and warm spice, great for curries.', '50g', 45, 'Herbs & Spices'],
-             ['Bay Leaves', 'Aromatic leaves used in soups.', '25g', 30, 'Herbs & Spices'],
+            // 🌿 Herbs & Spices
+            ['Basil', 'Fragrant herb, great for pasta.', '50g', 40, 'Herbs & Spices'],
+            ['Oregano', 'Used in Italian and Mediterranean dishes.', '50g', 35, 'Herbs & Spices'],
+            ['Cinnamon', 'Sweet and aromatic spice.', '50g', 50, 'Herbs & Spices'],
+            ['Paprika', 'Mildly spicy, adds rich color to food.', '50g', 45, 'Herbs & Spices'],
+            ['Ginger', 'Spicy and medicinal root.', '100g', 60, 'Herbs & Spices'],
+            ['Garlic Powder', 'Used to enhance flavors in cooking.', '50g', 50, 'Herbs & Spices'],
+            ['Rosemary', 'Pine-like flavor, great for meats.', '50g', 40, 'Herbs & Spices'],
+            ['Turmeric', 'Bright yellow, known for anti-inflammatory benefits.', '50g', 55, 'Herbs & Spices'],
+            ['Cumin', 'Earthy and warm spice, great for curries.', '50g', 45, 'Herbs & Spices'],
+            ['Bay Leaves', 'Aromatic leaves used in soups.', '25g', 30, 'Herbs & Spices'],
 
-              // 🌾 Rice & Grains
+            // 🌾 Rice & Grains
             ['White Rice', 'Staple food, fluffy when cooked.', '1kg', 70, 'Rice & Grains'],
             ['Brown Rice', 'Nutritious whole-grain alternative.', '1kg', 90, 'Rice & Grains'],
             ['Quinoa', 'Protein-rich and gluten-free.', '500g', 140, 'Rice & Grains'],
@@ -93,20 +94,49 @@ class ProductSeeder extends Seeder
             ['Couscous', 'Tiny pasta-like grain, quick to cook.', '500g', 85, 'Rice & Grains'],
             ['Black Rice', 'Highly nutritious, deep purple in color.', '1kg', 130, 'Rice & Grains'],
             ['Wild Rice', 'Chewy and nutty, great for salads.', '500g', 150, 'Rice & Grains'],
-            ['Millet', 'Small grain rich in protein.', '500g', 60, 'Rice & Grains']
-  
+            ['Millet', 'Small grain rich in protein.', '500g', 60, 'Rice & Grains'],
         ];
 
         foreach ($products as $product) {
+            $vat_percentage = rand(5, 12);
+            $vat = round($product[3] * ($vat_percentage / 100), 2);
+
+            $tax_percentage = rand(1, 5);
+            $tax = round($product[3] * ($tax_percentage / 100), 2);
+
+            $other_tax = round(rand(0, 20), 2);
+
+            $final_price = $product[3] + $vat + $tax + $other_tax;
+
+            $stocks = rand(10, 100);
+            $expiration_date = Carbon::now()->addDays(rand(30, 180));
+            $requires_temperature_control = in_array($product[4], ['Seafood', 'Meat']);
+
+            $image_base = Str::slug($product[0], '_');
+
             DB::table('products')->insert([
                 'product_id' => Str::uuid(),
                 'product_name' => $product[0],
                 'product_description' => $product[1],
                 'product_serving' => $product[2],
                 'product_price' => $product[3],
+                'vat_percentage' => $vat_percentage,
+                'vat' => $vat,
+                'tax_percentage' => $tax_percentage,
+                'tax' => $tax,
+                'other_tax' => $other_tax,
+                'final_price' => $final_price,
                 'category' => $product[4],
                 'sub_category' => 'Featured Products',
                 'product_rating' => rand(3, 5),
+                'status' => 'active',
+                'stocks' => $stocks,
+                'expiration_date' => $expiration_date,
+                'storage_temperature' => $requires_temperature_control ? '0-4°C' : null,
+                'requires_temperature_control' => $requires_temperature_control,
+                'product_image' => "products/{$image_base}.jpg",
+                'product_image_1' => "products/{$image_base}_1.jpg",
+                'product_image_2' => "products/{$image_base}_2.jpg",
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
