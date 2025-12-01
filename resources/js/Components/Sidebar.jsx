@@ -30,6 +30,8 @@ const Sidebar = () => {
   const supplierNavItems = [
   { href: '/admin/manage-products',    icon: CubeIcon,            label: 'Manage products' },
   ];
+  
+  
 
   return (
     <div className={`
