@@ -47,6 +47,7 @@ import {
 } from "@/components/ui/pagination"
 
 import { debounce } from 'lodash';
+import OrderFilters from "../../Components/OrderFilter";
 
 const lineChartConfig = {
     orders: {
@@ -73,7 +74,9 @@ const formatDate = (dateString) => {
 export default function ManageOrders({ orders, orderStatus, chartData, paymentChartData, topCustomers, topProducts, filters }) {
 
     const [isLoading, setIsLoading] = useState(false);
+    const [selectedFilter, setSelectedFilter] = useState("");
 
+    
     const summary = useMemo(() => {
         // Early return if orders or orders.data is undefined
         if (!orders || !orders.data) {
@@ -109,29 +112,34 @@ export default function ManageOrders({ orders, orderStatus, chartData, paymentCh
 
     console.log(orderStatus);
 
-    const fetchOrders = useCallback(async (sortConfigOverride = null, searchOverride = null) => {
-        setIsLoading(true);
+    const applyFilters = (filters) => {
+    router.get('/admin/manage-orders', filters, {
+        preserveState: true,
+        preserveScroll: true,
+    });
+};
 
-        const params = new URLSearchParams();
 
-        const searchValue = searchOverride !== null ? searchOverride : searchValueRef.current;
-        const sort = sortConfigOverride || sortConfig;
+   const fetchOrders = useCallback(async (sortConfigOverride = null, searchOverride = null, statusOverride = null) => {
+    setIsLoading(true);
 
-        if (searchValue) params.append('search', searchValue);
-        params.append('sort_field', sort.key || 'created_at');
-        params.append('sort_direction', sort.direction || 'desc');
+    const params = new URLSearchParams();
+    const searchValue = searchOverride ?? searchValueRef.current;
+    const sort = sortConfigOverride ?? sortConfig;
+    const status = statusOverride ?? selectedFilter;
 
-        try {
-            router.get('/admin/manage-orders', Object.fromEntries(params), {
-                preserveScroll: true,
-                onBefore: () => setIsLoading(true),
-                onFinish: () => setIsLoading(false),
-            });
-        } catch (error) {
-            console.error("Error fetching orders:", error);
-            setIsLoading(false);
-        }
-    }, [sortConfig]);
+    if (searchValue) params.append('search', searchValue);
+    if (status) params.append('status', status);
+
+    params.append('sort_field', sort.key || 'created_at');
+    params.append('sort_direction', sort.direction || 'desc');
+
+    router.get('/admin/manage-orders', Object.fromEntries(params), {
+        preserveScroll: true,
+        onBefore: () => setIsLoading(true),
+        onFinish: () => setIsLoading(false),
+    });
+    }, [sortConfig, selectedFilter]);
 
     const debouncedSearch = useMemo(() =>
         debounce((value) => {
@@ -140,11 +148,14 @@ export default function ManageOrders({ orders, orderStatus, chartData, paymentCh
         }, 500),
         [fetchOrders]);
 
+
     const handleSearch = (event) => {
         const value = event.target.value;
         setSearchQuery(value);
         debouncedSearch(value);
     };
+
+    
 
     const handleSort = useCallback((key) => {
         const newSortConfig = {
@@ -207,7 +218,6 @@ export default function ManageOrders({ orders, orderStatus, chartData, paymentCh
 
     const handleOrderClick = (order) => {
         setSelectedOrder(order); // Set the selected order
-        console.log("Selected Order:", order);
         // if (order.status === "shipped" || order.status === "placed") {
         //     toast.success("This order should be stored at a specific temperature before shipping.");
         // }
@@ -232,13 +242,10 @@ export default function ManageOrders({ orders, orderStatus, chartData, paymentCh
                 </BreadcrumbList>
             </Breadcrumb>
 
-            <summary className="px-4 py-2 mt-4 sticky top-16 border-b bg-gray-50 z-10">
+            <div className="px-4 py-2 mt-4 sticky top-16 border-b bg-gray-50 z-10">
                 <div className=" flex items-center gap-4">
                     <div className="flex-grow">
                         <h3 className="text-xl font-bold">Order List</h3>
-                        <p className="text-sm font-light">
-                            Here you can find all orders
-                        </p>
                     </div>
                    
                 </div>
@@ -287,7 +294,7 @@ export default function ManageOrders({ orders, orderStatus, chartData, paymentCh
                         </p>
                     </div>
                 </div>
-            </summary>
+            </div>
 
             {/* order list section */}
             <Card className="p-4 mb-4">
@@ -312,12 +319,22 @@ export default function ManageOrders({ orders, orderStatus, chartData, paymentCh
                         </div>                  
                     </div>
     
-                       <Button 
+                       {/* <Button 
                         variant="outline"
-                
+                        
                         >
                         <FilterIcon/>
-                        </Button>
+                        </Button> */}
+
+              <OrderFilters
+                    currentFilters={selectedFilter} // your current filters object
+                    applyFilters={(filters) => {
+                        setSelectedFilter(filters); // update state
+                        fetchOrders(null, searchQuery, filters.status); // fetch filtered results
+                    }}
+                    />
+
+
                    
                     <Button
                         onClick={handleEditModeToggle}
@@ -345,18 +362,27 @@ export default function ManageOrders({ orders, orderStatus, chartData, paymentCh
                                 onClick={() => handleSort("id")}
                             >
                                 Order ID & Created Date
+
+                                {sortConfig.key === "id" && (
+                                    <span>{sortConfig.direction === "asc" ? " ▲" : " ▼"}</span>
+                                )}
                             </TableHead>
                             <TableHead
                                 className="cursor-pointer hover:bg-gray-50"
                                 onClick={() => handleSort("total")}
                             >
                                 Amount
+
+                                  {sortConfig.key === "total" && (
+                                    <span>{sortConfig.direction === "asc" ? " ▲" : " ▼"}</span>
+                                )}
                             </TableHead>
                             <TableHead
                                 className="cursor-pointer hover:bg-gray-50"
                                 onClick={() => handleSort("status")}
                             >
                                 Status
+                                
                             </TableHead>
                         </TableRow>
                     </TableHeader>

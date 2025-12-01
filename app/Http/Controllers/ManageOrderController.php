@@ -25,6 +25,10 @@ class ManageOrderController extends Controller
         $sortDirection = $request->input('sort_direction', 'desc');
         $perPage = $request->input('per_page', 50);
         
+
+          $statusFilter = $request->input('status', ''); // New status filter
+            $fromDate = $request->input('from');           // New date from filter
+            $toDate = $request->input('to');   
         // Start query builder
         $query = Order::with(['user', 'orderItems.product', 'orderTracking', 'promotion']);
         
@@ -47,6 +51,23 @@ class ManageOrderController extends Controller
                   });
             });
         }
+
+         if ($statusFilter) {
+        $query->where('status', $statusFilter);
+    }
+
+        // Apply date range filter if provided
+      $fromDate = $request->input('from');
+        $toDate = $request->input('to');
+
+        if ($fromDate) {
+            $query->whereDate('created_at', '>=', Carbon::parse($fromDate)->format('Y-m-d'));
+        }
+        if ($toDate) {
+            $query->whereDate('created_at', '<=', Carbon::parse($toDate)->format('Y-m-d'));
+        }
+
+
         
         // Apply sorting
         $query->orderBy($sortField, $sortDirection);
@@ -145,20 +166,23 @@ class ManageOrderController extends Controller
             ->get();
 
 
-        return Inertia::render('admin/ManageOrders', [
-            'orders' => $orders,
-            'orderStatus' => $orderStatus,
-            'chartData' => $chartData,
-            'topCustomers' => $topCustomers,
-            'topProducts' => $topProducts,
-            // Add search parameters for maintaining state
-            'filters' => [
-                'search' => $search,
-                'sort_field' => $sortField,
-                'sort_direction' => $sortDirection,
-                'per_page' => $perPage,
-            ],
-        ]);
+          return Inertia::render('admin/ManageOrders', [
+        'orders' => $orders,
+        'orderStatus' => $orderStatus,
+        'chartData' => $chartData,
+        'topCustomers' => $topCustomers,
+        'topProducts' => $topProducts,
+        // Include filters for frontend
+        'filters' => [
+            'search' => $search,
+            'status' => $statusFilter,
+            'from' => $fromDate,
+            'to' => $toDate,
+            'sort_field' => $sortField,
+            'sort_direction' => $sortDirection,
+            'per_page' => $perPage,
+        ],
+    ]);
     }
 
     public function bulkUpdate(Request $request)
