@@ -153,12 +153,12 @@ export default function AddProduct({ onClose }) { // Added onClose prop
         formDataObj.append("final_price", formData.final_price);
         formDataObj.append("vat_percentage", formData.vat_exempt ? 0 : VAT_PERCENTAGE); // Send correct VAT percentage
         formDataObj.append("vat_exempt", formData.vat_exempt === true); // Ensure boolean value
-        formDataObj.append('expiration_date', form.data.expiration_date || null);
+        formDataObj.append('expiration_date', formData.expiration_date || null);
         formDataObj.append(
             'requires_temperature_control',
-            form.data.requires_temperature_control ? '1' : '0'
+            formData.requires_temperature_control ? '1' : '0'
         );
-        formDataObj.append('storage_temperature', form.data.storage_temperature || '');
+        formDataObj.append('storage_temperature', formData.storage_temperature || '');
         formDataObj.append("stocks", formData.stocks);
         formDataObj.append("status", formData.status.value);
 
