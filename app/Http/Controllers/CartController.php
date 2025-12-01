@@ -177,6 +177,21 @@ class CartController extends Controller
         return back()->with('success', 'Product added to cart!');
     }
 
+  public function update(Request $request)
+{
+    $request->validate([
+        'product_id' => 'required|exists:products,product_id',
+        'quantity' => 'required|integer|min:1',
+    ]);
+
+    Cart::where('user_id', Auth::id())
+        ->where('product_id', $request->product_id)
+        ->update(['quantity' => $request->quantity]);
+
+    return back();
+}
+
+
 
     // ✅ Remove an item from the cart
     public function destroy($id)

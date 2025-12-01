@@ -47,7 +47,7 @@ Route::middleware(['auth', 'verify.mfa'])->group(function () {
     Route::post('/orders/{order}/buy-again', [CartController::class, 'buyAgain'])->name('orders.buy-again');
     Route::post('/cart/apply-promo', [CartController::class, 'applyPromo'])->name('cart.apply-promo');
     Route::post('/cart/remove-promo', [CartController::class, 'removePromo'])->name('cart.remove-promo');
-    
+    Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
     // Add all your protected routes here
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

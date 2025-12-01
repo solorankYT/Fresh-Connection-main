@@ -24,6 +24,30 @@ export default function Cart() {
     const [isApplyingPromo, setIsApplyingPromo] = useState(false);
     const [activePromo, setActivePromo] = useState(initialPromotion);
 
+   const handleQuantityChange = (id, amount) => {
+        setQuantities(prev => ({
+            ...prev,
+            [id]: Math.max(1, (prev[id] || 1) + amount)
+        }));
+    }
+
+    const updateQuantity = (productId, newQty) => {
+        const quantity = Math.max(1, newQty);
+
+        setQuantities(prev => ({
+            ...prev,
+            [productId]: quantity,
+        }));
+
+        router.post('/cart/update', {
+            product_id: productId,
+            quantity,
+        }, {
+            preserveScroll: true,
+        });
+    };
+
+
     useEffect(() => {
         setActivePromo(initialPromotion);
     }, [initialPromotion]);
@@ -124,13 +148,6 @@ export default function Cart() {
         });
     };
 
-    // Handle quantity change
-    const handleQuantityChange = (id, amount) => {
-        setQuantities(prev => ({
-            ...prev,
-            [id]: Math.max(1, (prev[id] || 1) + amount)
-        }));
-    };
 
     const { auth } = usePage().props; // Get user authentication status
     const handleAddToCart = (productId, quantity) => {
@@ -205,7 +222,38 @@ export default function Cart() {
                                     </div>
 
                                     <p className='w-1/5 p-2'>₱{cart.product.final_price}</p>
-                                    <p className='w-1/5 p-2'>{cart.quantity}</p>
+                                  <Button variant="outline" className="w-1/5 flex items-center justify-center p-0">
+                                    {/* Decrement Button */}
+                                    <button
+                                        onClick={() =>
+                                            updateQuantity(cart.product.product_id,
+                                                (quantities[cart.product.product_id] || cart.quantity) - 1
+                                            )
+                                        }
+                                        className="p-2 rounded-l-md w-1/3 flex justify-center items-center"
+                                    >
+                                        <Minus size={16} />
+                                    </button>
+
+                                    {/* Quantity Display */}
+                                    <span className="font-semibold w-1/3 text-center">
+                                        {quantities[cart.product.product_id] || cart.quantity}
+                                    </span>
+
+                                    {/* Increment Button */}
+                                    <button
+                                        onClick={() =>
+                                            updateQuantity(cart.product.product_id,
+                                                (quantities[cart.product.product_id] || cart.quantity) + 1
+                                            )
+                                        }
+                                        className="p-2 rounded-r-md w-1/3 flex justify-center items-center"
+                                    >
+                                        <Plus size={16} />
+                                    </button>
+
+                                </Button>
+
                                     <p className='w-1/5 p-2 text-end font-semibold'>₱{cart.product ? (cart.quantity * cart.product.final_price).toFixed(2) : "N/A"}</p>
                                 </div>
                                 <hr className="border-gray-300"></hr>
