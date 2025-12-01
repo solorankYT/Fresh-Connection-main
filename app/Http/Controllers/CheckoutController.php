@@ -172,16 +172,9 @@ class CheckoutController extends Controller
         'phone_number'   => $validated['mobile_number'],
     ]);
 
-        // Get cart items
-        $cartItems = Cart::with('product')
-        ->where('user_id', Auth::id())
-        ->get();
+     $cartItems = Cart::with('product')->where('user_id', Auth::id())->get();
 
-        // Calculate subtotal before promotion
-    $subtotal = Cart::where('user_id', Auth::id())
-        ->with('product')
-        ->get()
-        ->sum(fn($item) => $item->product->price * $item->quantity);
+    $subtotal = $cartItems->sum(fn($item) => $item->product->product_price * $item->quantity);
 
         // Get active promotion from session
         $promotion = session('active_promotion');
@@ -189,8 +182,11 @@ class CheckoutController extends Controller
 
         // Calculate promotion discount if applicable
         if ($promotion) {
+            if($promotion->type === 'fixed_amount') {
+                $discountAmount = $promotion->amount;
+            } elseif($promotion->type === 'percentage') {
         $discountAmount = (($promotion->percentage / 100) * $subtotal);
-
+            }
         // Prevent discount > subtotal
         if ($discountAmount > $subtotal) {
             $discountAmount = $subtotal;

@@ -397,7 +397,11 @@ export default function Tracking({ orderItems, orderDetails, currentOrderId, rev
                     <p>{currentOrder.delivery_fee ? currentOrder.formatted_delivery_fee : '---'}</p>
                     <p>{currentOrder.discount > 0 ? currentOrder.formatted_discount : '---'}</p>
                     <p className='font-bold text-base'>{currentOrder.formatted_total}</p>
-                    <p>{currentOrder.payment_method?.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase())}</p>
+                   <p>{currentOrder.payment_method
+                        ?.replace(/_/g, ' ')
+                        .replace(/\b\w/g, c => c.toUpperCase())
+                    }</p>
+
                 </div>
             </div>
 
