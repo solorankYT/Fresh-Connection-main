@@ -13,6 +13,8 @@ export default function Tracking({ orderItems, orderDetails, currentOrderId, rev
     const currentOrder = orderDetails.find(order => order.id === parseInt(currentOrderId));
     const [paymentProof, setPaymentProof] = useState(null);
     const [isUploading, setIsUploading] = useState(false);
+    const [errors, setErrors] = useState({});
+     const [preview, setPreview] = useState(null);           
 
     useEffect(() => {
         toast.success("Reminder: This order will be stored at the correct temperature before shipping.");
@@ -138,90 +140,132 @@ export default function Tracking({ orderItems, orderDetails, currentOrderId, rev
 
             <hr className="border-gray-300"></hr>
 
-            {/* Progress Bar */}
-            <div className="p-8">
-                <div className="flex items-center">
-                    {progressStages.map((stage, index) => (
-                        <div key={index} className="flex flex-col items-center w-1/4">
-                            {/* Circle */}
-                            <div
-                                className={`w-10 h-10 rounded-full border-4 ${stage.date !== '---' ? 'border-gray-800' : 'border-gray-300'
-                                    } flex items-center justify-center bg-white`}
-                            >
-                                <div
-                                    className={`w-4 h-4 rounded-full ${stage.date !== '---' ? 'bg-gray-800' : 'bg-gray-300'
-                                        }`}
-                                ></div>
+                            {/* Progress Bar */}
+                            <div className="p-8">
+                                <div className="flex items-center">
+                                    {progressStages.map((stage, index) => (
+                                        <div key={index} className="flex flex-col items-center w-1/4">
+                                            {/* Circle */}
+                                            <div
+                                                className={`w-10 h-10 rounded-full border-4 ${stage.date !== '---' ? 'border-gray-800' : 'border-gray-300'
+                                                    } flex items-center justify-center bg-white`}
+                                            >
+                                                <div
+                                                    className={`w-4 h-4 rounded-full ${stage.date !== '---' ? 'bg-gray-800' : 'bg-gray-300'
+                                                        }`}
+                                                ></div>
+                                            </div>
+                                            {/* Label */}
+                                            <p className="text-sm mt-4 text-center font-medium">{stage.label}</p>
+                                            <p className="text-xs text-gray-500">{stage.date}</p>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
-                            {/* Label */}
-                            <p className="text-sm mt-4 text-center font-medium">{stage.label}</p>
-                            <p className="text-xs text-gray-500">{stage.date}</p>
+                            <hr className="border-gray-300"></hr>
+                        <div className="p-8 max-w-3xl mx-auto">
+                {(currentOrder?.payment_status === 'pending' || currentOrder?.payment_status === 'rejected') && (
+                    <div className="bg-white shadow-xl rounded-2xl border border-gray-200 p-8">
+                    {/* Header */}
+                    <div className="mb-6">
+                        <h3 className="text-3xl font-extrabold text-gray-900 mb-2">Upload Payment Proof</h3>
+                        <p className="text-gray-600 text-lg">
+                        Upload a clear copy of your payment proof to complete the verification process.
+                        </p>
+                    </div>
+
+                    {/* Form */}
+                    <form 
+                        onSubmit={formHandleSubmit(onSubmit)} 
+                        encType="multipart/form-data" 
+                        className="space-y-6"
+                    >
+                        {/* File Input */}
+                        <div>
+                        <label className="block text-gray-700 font-medium mb-2" htmlFor="payment_proof">
+                            Select Payment Proof
+                        </label>
+                        <div className="flex items-center space-x-4">
+                            <input
+                            type="file"
+                            id="payment_proof"
+                            accept="image/*,application/pdf"
+                            {...register("payment_proof", { required: "Payment proof is required." })}
+                            onChange={(e) => {
+                                const file = e.target.files[0];
+                                setPaymentProof(file);
+                                setValue("payment_proof", file);
+
+                                if (file && file.type.startsWith("image/")) {
+                                const reader = new FileReader();
+                                reader.onloadend = () => setPreview(reader.result);
+                                reader.readAsDataURL(file);
+                                } else {
+                                setPreview(null); // No preview for PDF
+                                }
+                            }}
+                            className="block w-full text-sm text-gray-800 border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                            />
                         </div>
-                    ))}
+                        {errors.payment_proof && (
+                            <p className="text-red-600 mt-1 text-sm">{errors.payment_proof.message}</p>
+                        )}
+                        </div>
+
+                        {/* Preview */}
+                        {preview && (
+                        <div className="mt-4">
+                            <p className="text-gray-700 mb-2 font-medium">Preview:</p>
+                            <img 
+                            src={preview} 
+                            alt="Payment Proof Preview" 
+                            className="max-h-64 rounded-lg border border-gray-200 shadow-sm object-contain"
+                            />
+                        </div>
+                        )}
+
+                        {/* Submit Button */}
+                        <div>
+                        {isUploading ? (
+                            <button
+                            type="button"
+                            disabled
+                            className="w-full flex justify-center items-center space-x-3 bg-gray-400 text-white py-3 px-6 rounded-lg cursor-not-allowed"
+                            >
+                            <svg
+                                className="animate-spin w-5 h-5 text-white"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M4 6h16M4 12h16M4 18h16"
+                                />
+                            </svg>
+                            <span>Uploading...</span>
+                            </button>
+                        ) : (
+                            <button
+                            type="submit"
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-semibold transition duration-300 flex justify-center items-center shadow-md hover:shadow-lg"
+                            >
+                            Upload Payment Proof
+                            </button>
+                        )}
+                        </div>
+                    </form>
+
+                    {/* Optional Note */}
+                    <p className="mt-4 text-gray-500 text-sm">
+                        Accepted formats: JPG, PNG, or PDF. Ensure the file clearly shows your payment details.
+                    </p>
+                    </div>
+                )}
                 </div>
-            </div>
-            <hr className="border-gray-300"></hr>
-<div className="p-8">
-  {(currentOrder?.payment_status === 'pending' || currentOrder?.payment_status === 'rejected') && (
-    <div className="bg-yellow-50 p-6 rounded-lg shadow-md">
-      <h3 className="text-2xl font-semibold text-gray-800 mb-2">Upload Payment Proof</h3>
-      <p className="text-gray-600 text-lg mb-4">
-        Please upload the payment proof for your order to proceed with the verification process.
-      </p>
-
-      <form 
-        onSubmit={formHandleSubmit(onSubmit)} 
-        encType="multipart/form-data" 
-        className="space-y-4"
-      >
-        <div>
-          <input
-            type="file"
-            {...register("payment_proof", { required: "Payment proof is required." })}
-            onChange={(e) => {
-              setPaymentProof(e.target.files[0]);
-              setValue("payment_proof", e.target.files[0]); // Update RHF state
-            }}
-            className="block w-full text-sm text-gray-800 border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <div className="flex justify-between items-center">
-          {isUploading ? (
-            <button
-              type="button"
-              disabled
-              className="bg-gray-500 text-white py-2 px-6 rounded-lg w-full flex justify-center items-center space-x-2 cursor-not-allowed"
-            >
-              <svg
-                className="animate-spin w-5 h-5 text-white"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-              <span>Uploading...</span>
-            </button>
-          ) : (
-            <button
-              type="submit"
-              className="bg-blue-600 text-white py-3 px-6 rounded-lg w-full hover:bg-blue-700 transition duration-300"
-            >
-              Upload Payment Proof
-            </button>
-          )}
-        </div>
-      </form>
-    </div>
-  )}
-</div>
 
 
 
