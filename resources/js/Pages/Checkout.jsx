@@ -81,7 +81,7 @@ const regions = [
 
 export default function Checkout() {
     const { isLoaded } = useLoadScript({
-        googleMapsApiKey: "AIzaSyDc16qotUOMogsXyiNfDkUCexQ-EZsRX6Y",
+        googleMapsApiKey: process.env.GoogleMaps_API_Key,
         libraries, // Use the constant defined outside the component
     });
 

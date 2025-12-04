@@ -103,20 +103,57 @@ class DashboardController extends Controller
                 'products.product_price',
                 'products.category',
                 DB::raw('SUM(order_items.quantity) as total_quantity'),
-                DB::raw('SUM(order_items.total) as total_revenue')
+                DB::raw('SUM(order_items.total) as total_revenue'),
+                DB::raw('MAX(order_items.created_at) as last_sold_at')
             )
-            ->where('orders.created_at', '>=', $sixMonthsAgo)
+            ->where('order_items.created_at', '>=', $sixMonthsAgo)
             ->groupBy('products.product_id', 'products.product_name', 'products.product_image', 'products.product_price', 'products.category')
-            ->orderBy('total_revenue', 'desc')
+            ->orderBy('total_quantity', 'desc')
             ->limit(5)
-            ->get();
+            ->get()
+           ->map(function($product) {
+                $product->days_since_last_sale = $product->last_sold_at
+                    ? Carbon::parse($product->last_sold_at)->diffInDays(Carbon::today())
+                    : 999; // never sold
+                return $product;
+            });
 
+
+            $slowProducts = DB::table('products')
+            ->leftJoin('order_items', 'products.product_id', '=', 'order_items.product_id')
+            ->leftJoin('orders', 'order_items.order_id', '=', 'orders.id')
+            ->select(
+                'products.product_id',
+                'products.product_name',
+                'products.product_image',
+                'products.product_price',
+                'products.category',
+                DB::raw('COALESCE(SUM(order_items.quantity), 0) as total_quantity_sold'),
+                DB::raw('COALESCE(SUM(order_items.total), 0) as total_revenue_generated'),
+                DB::raw('MAX(orders.created_at) as last_sold_at')
+            )
+            ->where(function($query) use ($sixMonthsAgo) {
+                $query->where('orders.created_at', '>=', $sixMonthsAgo)
+                    ->orWhereNull('orders.created_at');
+            })
+            ->groupBy('products.product_id', 'products.product_name', 'products.product_image', 'products.product_price', 'products.category')
+            ->orderBy('total_quantity_sold', 'asc')
+            ->limit(5)
+            ->get()
+            ->map(function($product) {
+               $product->days_since_last_sale = $product->last_sold_at
+                ? Carbon::parse($product->last_sold_at)->diffInDays(Carbon::today()) // returns integer
+                : 999; 
+
+                return $product;
+            });
 
     return Inertia::render('admin/Dashboard', [
         'summary' => $summary,
         'chartData' => $chartData,
         'topCustomers' => $topCustomers,
         'topProducts' => $topProducts,
+        'slowProducts' => $slowProducts,
         'summaryUser' => $summaryUser,
     ]);
 }
