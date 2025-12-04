@@ -75,37 +75,37 @@
             <tr>
                 <td>{{ $item->product->product_name }}</td>
                 <td>{{ $item->quantity }}</td>
-                <td>₱{{ number_format($item->price, 2) }}</td>
-                <td>₱{{ number_format($item->total, 2) }}</td>
+                <td>&#8369;{{ number_format($item->price, 2) }}</td>
+                <td>&#8369;{{ number_format($item->total, 2) }}</td>
             </tr>
             @endforeach
 
             <tr><td colspan="4"><hr></td></tr>
             <tr>
                 <td colspan="3" class="text-right">Subtotal</td>
-                <td>₱{{ number_format($order->subtotal, 2) }}</td>
+                <td>&#8369;{{ number_format($order->subtotal, 2) }}</td>
             </tr>
 
             <tr>
                 <td colspan="3" class="text-right">VAT (12%)</td>
-                <td>₱{{ number_format($order->total * 0.12, 2) }}</td>
+                <td>&#8369;{{ number_format($order->total * 0.12, 2) }}</td>
             </tr>
 
             @if($order->discount && $order->promotion)
             <tr>
                 <td colspan="3" class="text-right">Discount ({{ $order->promotion->code }})</td>
-                <td>-₱{{ number_format($order->discount, 2) }}</td>
+                <td>{{ number_format($order->discount, 2) }}</td>
             </tr>
             @endif
 
             <tr>
                 <td colspan="3" class="text-right">Delivery Fee</td>
-                <td>₱{{ number_format($order->delivery_fee, 2) }}</td>
+                <td>&#8369;{{ number_format($order->delivery_fee, 2) }}</td>
             </tr>
 
             <tr class="total-row">
                 <td colspan="3" class="text-right">Total</td>
-                <td>₱{{ number_format($order->total, 2) }}</td>
+                <td>&#8369;{{ number_format($order->total, 2) }}</td>
             </tr>
         </table>
 
