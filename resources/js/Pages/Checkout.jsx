@@ -20,6 +20,8 @@ const mapContainerStyle = {
     transition: "box-shadow 0.3s ease",
 };
 
+
+
 const center = {
     lat: 14.5995, // Center of Metro Manila
     lng: 120.9842,
@@ -81,7 +83,7 @@ const regions = [
 
 export default function Checkout() {
     const { isLoaded } = useLoadScript({
-        googleMapsApiKey: process.env.GoogleMaps_API_Key,
+        googleMapsApiKey: "AIzaSyDc16qotUOMogsXyiNfDkUCexQ-EZsRX6Y",
         libraries, // Use the constant defined outside the component
     });
 
