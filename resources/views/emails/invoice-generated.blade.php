@@ -2,6 +2,14 @@
 <html>
 <head>
     <style>
+              @php
+        $font = public_path('fonts/DejaVuSans.ttf');
+        @endphp
+
+        @font-face {
+            font-family: "DejaVu";
+            src: url("{{ $font }}") format("truetype");
+        }
         body {
             font-family: Arial, sans-serif;
             line-height: 1.6;

@@ -18,6 +18,7 @@
         @endforeach
     </tbody>
 </table>
+
 <style>
     table {
         border-collapse: collapse;
@@ -31,3 +32,17 @@
     th {
         background-color: #f2f2f2;
     }
+
+@php
+$font = public_path('fonts/DejaVuSans.ttf');
+@endphp
+
+@font-face {
+    font-family: "DejaVu";
+    src: url("{{ $font }}") format("truetype");
+}
+
+body, table, th, td {
+    font-family: "DejaVu", sans-serif;
+}
+

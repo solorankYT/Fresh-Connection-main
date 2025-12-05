@@ -140,6 +140,18 @@
             border-top: 1px solid #eee;
             padding-top: 20px;
         }
+
+        
+        @php
+        $font = public_path('fonts/DejaVuSans.ttf');
+        @endphp
+
+        @font-face {
+            font-family: "DejaVu";
+            src: url("{{ $font }}") format("truetype");
+        }
+
+
     </style>
 </head>
 <body>
