@@ -64,7 +64,6 @@ class OrderItemsSeeder extends Seeder
                 $vatPercentage = 12;
                 $vat = $price * ($vatPercentage / 100);
                 
-                // Calculate final price with VAT
                 $finalPrice = $price + $vat;
                 
                 // Calculate total

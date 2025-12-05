@@ -149,11 +149,11 @@ export default function OrderDetails({ order, orders, onClose, onNextOrder, orde
 
         // Handle recalculations based on the edited field
         if (field === "price") {
-            // If base price is edited, recalculate final price
+
             finalPrice = basePrice + vat + tax - discount;
             updatedItems[index].final_price = finalPrice.toFixed(2);
         } else if (field === "final_price") {
-            // If final price is edited, recalculate base price
+
             const recalculatedBasePrice = finalPrice - vat - tax + discount;
             updatedItems[index].price = recalculatedBasePrice.toFixed(2);
         }
@@ -433,7 +433,7 @@ export default function OrderDetails({ order, orders, onClose, onNextOrder, orde
 
                                                 {/* Base Price */}
                                                 <div className="flex flex-col">
-                                                    <label className="text-xs text-gray-500 mb-1">Base Price</label>
+                                                    <label className="text-xs text-gray-500 mb-1">Vatable</label>
                                                     <input
                                                         type="number"
                                                         value={item.price || ""}
@@ -492,7 +492,7 @@ export default function OrderDetails({ order, orders, onClose, onNextOrder, orde
 
                                                 {/* Final Price */}
                                                 <div className="flex flex-col">
-                                                    <label className="text-xs text-gray-500 mb-1">Final Price</label>
+                                                    <label className="text-xs text-gray-500 mb-1">Total Price</label>
                                                     <input
                                                         type="number"
                                                         value={item.final_price || ""}

@@ -10,7 +10,7 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbS
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import ProductVelocityChart from "../../Components/ProductVelocityChart";
 
-export default function Dashboard({ summary, chartData, topCustomers, topProducts, summaryUser, slowProducts }) {
+export default function Dashboard({ summary, chartData, topCustomers, topProducts, summaryUser, slowProducts, salesSummary }) {
     const lineChartConfig = {
         orders: {
             label: "Orders",
@@ -124,6 +124,54 @@ export default function Dashboard({ summary, chartData, topCustomers, topProduct
       </Card>
 
     </div>
+      <h1>Sales Overview</h1>
+      <div className="flex gap-4 my-4">
+        {/* <a 
+          href="/reports/sales/excel" 
+          className="px-4 py-2 bg-green-600 text-white rounded"
+        >
+          Export Excel
+        </a> */}
+
+        <a 
+          href="/reports/sales/pdf" 
+          className="px-4 py-2 bg-red-600 text-white rounded"
+        >
+          Export all in PDF
+        </a>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+
+        {renderProductCard(
+          "Total Products Sold",
+          salesSummary.total_products_sold ?? 0,
+          "All-time quantity sold",
+          "text-green-900"
+        )}
+
+        {renderProductCard(
+          "Total Revenue",
+          `₱${Number(salesSummary.total_revenue ?? 0).toLocaleString()}`,
+          "Total earnings",
+          "text-green-900"
+        )}
+
+        {renderProductCard(
+          "Total Orders",
+          salesSummary.total_orders ?? 0,
+          "Completed orders",
+          "text-green-900"
+        )}
+
+        {renderProductCard(
+          "Average Order Value",
+          `₱${Number(salesSummary.average_order_value ?? 0).toLocaleString()}`,
+          "Revenue per order",
+          "text-green-900"
+        )}
+
+      </div>
 
           <h1>Orders</h1>
     {/* Orders Chart */}

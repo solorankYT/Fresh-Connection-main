@@ -105,12 +105,11 @@ export default function AddProduct({ onClose }) { // Added onClose prop
             const vat = prev.vat_exempt ? 0 : VAT_PERCENTAGE; // Adjust VAT based on exemption
 
             if (name === "final_price") {
-                // Recalculate base price when final price changes
                 const finalPrice = parseFloat(value) || 0;
                 const basePrice = finalPrice / (1 + vat / 100);
                 updatedFormData.product_price = basePrice.toFixed(2);
             } else if (name === "product_price") {
-                // Recalculate final price when base price changes
+            
                 const basePrice = parseFloat(value) || 0;
                 const finalPrice = basePrice * (1 + vat / 100);
                 updatedFormData.final_price = finalPrice.toFixed(2);
@@ -125,7 +124,7 @@ export default function AddProduct({ onClose }) { // Added onClose prop
             const vat = checked ? 0 : VAT_PERCENTAGE; // Set VAT to 0 if exempt, otherwise 12%
             const basePrice = parseFloat(prev.product_price) || 0;
             const finalPrice = checked
-                ? basePrice // If exempt, final price equals base price
+                ? basePrice 
                 : basePrice * (1 + VAT_PERCENTAGE / 100);
 
             return {
@@ -495,7 +494,7 @@ export default function AddProduct({ onClose }) { // Added onClose prop
                                     )}
                                 </div>
                                 <div className="py-2">
-                                    <label className="text-sm font-light">Base Price</label>
+                                    <label className="text-sm font-light">Unit Cost</label>
                                     <Input
                                         type="number"
                                         name="product_price"
@@ -508,7 +507,7 @@ export default function AddProduct({ onClose }) { // Added onClose prop
                                     )}
                                 </div>
                                 <div className="py-2">
-                                    <label className="text-sm font-light">Final Price</label>
+                                    <label className="text-sm font-light">Selling Price</label>
                                     <Input
                                         type="number"
                                         name="final_price"

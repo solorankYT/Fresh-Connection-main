@@ -148,6 +148,21 @@ class DashboardController extends Controller
                 return $product;
             });
 
+            // SALES SUMMARY
+            $salesSummary = DB::table('order_items')
+                ->join('orders', 'order_items.order_id', '=', 'orders.id')
+                ->select(
+                    DB::raw('SUM(order_items.quantity) as total_products_sold'),
+                    DB::raw('SUM(order_items.total) as total_revenue'),
+                    DB::raw('COUNT(DISTINCT orders.id) as total_orders')
+                )
+                ->where('orders.status', 'completed') // OPTIONAL: use if you have a status
+                ->first();
+
+            $salesSummary->average_order_value = $salesSummary->total_orders > 0
+                ? round($salesSummary->total_revenue / $salesSummary->total_orders, 2)
+                : 0;
+
     return Inertia::render('admin/Dashboard', [
         'summary' => $summary,
         'chartData' => $chartData,
@@ -155,6 +170,7 @@ class DashboardController extends Controller
         'topProducts' => $topProducts,
         'slowProducts' => $slowProducts,
         'summaryUser' => $summaryUser,
+        'salesSummary' => $salesSummary,
     ]);
 }
 

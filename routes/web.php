@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\SalesReportController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\App;
 use App\Http\Middleware\RoleMiddleware;
@@ -52,6 +53,7 @@ Route::middleware(['auth', 'verify.mfa'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+
 });
 
 // Public Routes
@@ -176,6 +178,11 @@ Route::middleware(['auth', 'role:admin' ])->group(function () {
 
     Route::post('/order/{orderId}/confirm', [ManageOrderController::class, 'confirmOrder'])->name('order.confirm');
     Route::post('/order/{orderId}/reject', [ManageOrderController::class, 'rejectOrder'])->name('order.reject');
+
+    Route::get('/reports/sales', [SalesReportController::class, 'products'])->name('report.sales');
+    Route::get('/reports/sales/excel', [SalesReportController::class, 'exportExcel'])->name('report.sales.excel');
+    Route::get('/reports/sales/pdf', [SalesReportController::class, 'exportPDF'])->name('report.sales.pdf');
+
 });
 
 

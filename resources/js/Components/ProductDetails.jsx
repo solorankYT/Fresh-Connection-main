@@ -490,7 +490,7 @@ export default function ProductDetails({ product, onUpdate, onClose }) {
                                 </p>
                             </div>
                             <p className="text-sm font-light">
-                                Final Price:{" "}
+                                Selling Price:{" "}
                                 <Input
                                     type="number"
                                     name="final_price"
